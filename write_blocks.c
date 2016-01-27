@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 
 typedef struct record {
   int uid1;
@@ -9,6 +10,8 @@ typedef struct record {
 
 Record convertString(char * line);
 void write_blocks(FILE * fp, int block_size);
+
+const int MB = 1024 * 1024;
 
 int main(int argc, char* argv[]){
   if (argc != 3){
@@ -54,14 +57,22 @@ void write_blocks(FILE * fp, int block_size){
   if (!(fp_write = fopen ("records.data", "wb" )))
     exit(EXIT_FAILURE); 
 
+  clock_t begin, end;
+  double time_spent;
+  long total_records = 0;
+
   int i = 0;
   int j = 0;
+
+  begin = clock();
+  /* code to be timed */
   while ((read = getline(&line, &len, fp)) != -1) {
     Record rec = convertString(line);
     if(i < records_per_block){
       buffer[j] = rec;
       j+=sizeof(Record);
       i++;
+      total_records++;
     }
     else{
       fwrite(buffer, sizeof(Record), records_per_block, fp_write);
@@ -71,9 +82,15 @@ void write_blocks(FILE * fp, int block_size){
       j = 0;
     }
   }
+  end = clock();
+
   if (line)
     free(line);
   fclose(fp_write);
   free(buffer); 
+
+  time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+  /* result in MB per second */
+  printf ("Data rate: %.3f MBPS\n", ((total_records*sizeof(Record))/time_spent)/MB);
 }
 
