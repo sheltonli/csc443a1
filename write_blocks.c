@@ -68,11 +68,11 @@ void write_blocks(FILE * fp, int block_size){
   /* code to be timed */
   while ((read = getline(&line, &len, fp)) != -1) {
     Record rec = convertString(line);
+    total_records++;
     if(i < records_per_block){
       buffer[j] = rec;
       j+=sizeof(Record);
       i++;
-      total_records++;
     }
     else{
       fwrite(buffer, sizeof(Record), records_per_block, fp_write);
