@@ -59,6 +59,10 @@ void write_blocks(FILE * fp, int block_size){
     //printf("Number of caracter read: %d\n", read);
     Record rec = convertString(line);
     if(i < records_per_block){
+      /* When the block size is > 1024 the line below segfaults. 
+      All the parameters are valid, so it seems as if not 
+      enough space is allocated in the array. I can not 
+      figure out what the issue is...*/
       buffer[j] = rec;
       j+=sizeof(Record);
       i++;
