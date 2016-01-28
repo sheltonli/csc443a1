@@ -51,12 +51,12 @@ void write_blocks(FILE * fp, int block_size){
   /* Allocate buffer for 1 block */
   Record * buffer = (Record *) calloc (records_per_block, sizeof(Record));
 
-  if (!(fp_write = fopen ("records.data", "wb" )))
-    exit(EXIT_FAILURE); 
+  if (!(fp_write = fopen ("records.dat", "wb" )))
+    exit(EXIT_FAILURE);  
 
   int i = 0;
   int j = 0;
-  while ((read = getline(&line, &len, fp)) != -1) {
+  while ((read = getline(&line, &len, fp)) > 0) {
     Record rec = convertString(line);
     if(i < records_per_block){
       buffer[j] = rec;
@@ -69,6 +69,9 @@ void write_blocks(FILE * fp, int block_size){
       fflush (fp_write);
       i = 0;
       j = 0;
+      buffer[j] = rec;
+      j+=sizeof(Record);
+      i++;
     }
   }
   if (line)
