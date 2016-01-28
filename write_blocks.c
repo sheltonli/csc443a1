@@ -56,6 +56,13 @@ void write_blocks(FILE * fp, int block_size){
   int i = 0;
   int j = 0;
   while ((read = getline(&line, &len, fp)) != -1) {
+    /*
+    Try printing lines for block size = 1032. The last line 
+    printed before segfault is "Q". Extreemly odd. Maybe you
+    can figure out what's going on..
+    */
+    printf("line: %s\n", line);
+
     //printf("Number of caracter read: %d\n", read);
     Record rec = convertString(line);
     if(i < records_per_block){
