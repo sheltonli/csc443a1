@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>
 
 typedef struct record {
   int uid1;
@@ -10,8 +9,6 @@ typedef struct record {
 
 Record convertString(char * line);
 void write_blocks(FILE * fp, int block_size);
-
-const int MB = 1024 * 1024;
 
 int main(int argc, char* argv[]){
   if (argc != 3){
@@ -43,7 +40,7 @@ Record convertString(char * line){
   rec.uid2 = atoi(strtok(NULL, ",")); 
   return rec;
 }
-
+int count = 0;
 void write_blocks(FILE * fp, int block_size){
   char * line = NULL;
   size_t len = 0;
@@ -53,30 +50,22 @@ void write_blocks(FILE * fp, int block_size){
   int records_per_block = block_size / sizeof(Record);
   /* Allocate buffer for 1 block */
   Record * buffer = (Record *) calloc (records_per_block, sizeof(Record));
-
   if (!(fp_write = fopen ("records.dat", "wb" )))
     exit(EXIT_FAILURE);  
-
-  clock_t begin, end;
-  double time_spent;
-  long total_records = 0;
-
+  
   int i = 0;
   int j = 0;
-  
-  while ((read = getline(&line, &len, fp)) > 0) {
-  begin = clock();
-
-  /* code to be timed */
   while ((read = getline(&line, &len, fp)) != -1) {
+    //printf("Number of caracter read: %d\n", read);
     Record rec = convertString(line);
-    total_records++;
     if(i < records_per_block){
       buffer[j] = rec;
       j+=sizeof(Record);
       i++;
     }
     else{
+      count ++;
+      printf("COUNT: %d\n",count);
       fwrite(buffer, sizeof(Record), records_per_block, fp_write);
       /* Force  data to disk */
       fflush (fp_write);
@@ -87,15 +76,14 @@ void write_blocks(FILE * fp, int block_size){
       i++;
     }
   }
-  end = clock();
-
   if (line)
     free(line);
   fclose(fp_write);
-  free(buffer); 
-
-  time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-  /* result in MB per second */
-  printf ("Data rate: %.3f MBPS\n", ((total_records*sizeof(Record))/time_spent)/MB);
+  /* Why does this cause problems????? 
+  blocks(3116,0x7fff789ba300) malloc: *** error for object 0x7fe3ea001600: incorrect checksum for freed object - object was probably modified after being freed.
+  *** set a breakpoint in malloc_error_break to debug
+  Abort trap: 6
+  */
+  //free(buffer); 
 }
 
