@@ -51,7 +51,12 @@ void write_blocks(FILE * fp, int block_size){
   /* Allocate buffer for 1 block */
   Record * buffer = (Record *) calloc (records_per_block, sizeof(Record));
   if (!(fp_write = fopen ("records.dat", "wb" )))
-    exit(EXIT_FAILURE);  
+    exit(EXIT_FAILURE);
+
+  /* empty record for clearing buffer */
+  Record empty_rec;
+  empty_rec.uid1 = 0;
+  empty_rec.uid2 = 0; 
   
   int i = 0;
   while ((read = getline(&line, &len, fp)) != -1) {
@@ -81,18 +86,24 @@ void write_blocks(FILE * fp, int block_size){
       fwrite(buffer, sizeof(Record), records_per_block, fp_write);
       /* Force  data to disk */
       fflush (fp_write);
+
+      /* Clear the buffer */
+      for (int j = 0; j < records_per_block; j ++){
+        buffer[j] = empty_rec;
+      }
+
       i = 0;
       buffer[i] = rec;
       i++;
     }
   }
 
-  /*
-  problem of say loop ends when buffer is not full, those remaining records aren't written
-  you could put a write at the end of the loop, but it'll write more than we want since we 
-  don't ever clear the buffer, we just make it point to other lines.
-  preferably want to clear buffer everytime it writes so we can do one final write outside the loop.
-  */
+  /* Do one final write for values still in the buffer 
+  This will write records with 0 values, so while reading check
+  for 0 value just like in max_ave_seq_ram */
+  fwrite(buffer, sizeof(Record), records_per_block, fp_write);
+  /* Force  data to disk */
+  fflush (fp_write);
 
   if (line)
     free(line);

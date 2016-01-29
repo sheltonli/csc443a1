@@ -95,7 +95,7 @@ void max_ave_seq_ram(FILE * fp_read){
   end = clock();
 
   /* Remove later */
-  // printf("%d\n", count);
+  printf("%d\n", count);
 
   ma.avg = total_conns/total_ids;
   ma.max = max_conns;
