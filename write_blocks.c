@@ -75,8 +75,9 @@ void write_blocks(FILE * fp, int block_size){
     So in the next iteration of i, we will seg fault as we're going over the buffer limit
 
     So I fixed this by removing i, and only using j
+    Also it should be checking if j < block_size
     */
-    if(j < records_per_block){
+    if(j < block_size){
       /* When the block size is > 1024 the line below segfaults. 
       All the parameters are valid, so it seems as if not 
       enough space is allocated in the array. I can not 
