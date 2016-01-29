@@ -54,7 +54,6 @@ void write_blocks(FILE * fp, int block_size){
     exit(EXIT_FAILURE);  
   
   int i = 0;
-  int j = 0;
   while ((read = getline(&line, &len, fp)) != -1) {
     /*
     Try printing lines for block size = 1032. The last line 
@@ -66,13 +65,14 @@ void write_blocks(FILE * fp, int block_size){
     //printf("Number of caracter read: %d\n", read);
     Record rec = convertString(line);
 
+    /*
+    so basically skipping by 8 screws everything up, thats why we had garbage values in the buffer
+    dont need to increment by 8
+    i removed j cuz its not needed
+    */
+
     if(i < records_per_block){
-      /* When the block size is > 1024 the line below segfaults. 
-      All the parameters are valid, so it seems as if not 
-      enough space is allocated in the array. I can not 
-      figure out what the issue is...*/
-      buffer[j] = rec;
-      j+=sizeof(Record);
+      buffer[i] = rec;
       i++;
     }
     else{
@@ -82,19 +82,20 @@ void write_blocks(FILE * fp, int block_size){
       /* Force  data to disk */
       fflush (fp_write);
       i = 0;
-      j = 0;
-      buffer[j] = rec;
-      j+=sizeof(Record);
+      buffer[i] = rec;
       i++;
     }
   }
+
+  /*
+  problem of say loop ends when buffer is not full, those remaining records aren't written
+  you could put a write at the end of the loop, but it'll write more than we want since we 
+  don't ever clear the buffer, we just make it point to other lines.
+  preferably want to clear buffer everytime it writes so we can do one final write outside the loop.
+  */
+
   if (line)
     free(line);
   fclose(fp_write);
-  /* Why does this cause problems????? 
-  blocks(3116,0x7fff789ba300) malloc: *** error for object 0x7fe3ea001600: incorrect checksum for freed object - object was probably modified after being freed.
-  *** set a breakpoint in malloc_error_break to debug
-  Abort trap: 6
-  */
-  //free(buffer); 
+  free(buffer); 
 }
