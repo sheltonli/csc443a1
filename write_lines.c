@@ -43,8 +43,8 @@ void write_lines(FILE * fp){
   begin = clock();
   /* code to be timed */
   while ((read = getline(&line, &len, fp)) != -1) {
-    fwrite(line, sizeof(line), 1, fp_write);
-    total_size += sizeof(line);
+    fwrite(line, strlen(line), 1, fp_write);
+    total_size += strlen(line);
     /* Force  data to disk */
     fflush (fp_write);
   }
