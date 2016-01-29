@@ -53,7 +53,6 @@ void write_blocks(FILE * fp, int block_size){
   if (!(fp_write = fopen ("records.dat", "wb" )))
     exit(EXIT_FAILURE);  
   
-  int i = 0;
   int j = 0;
   while ((read = getline(&line, &len, fp)) != -1) {
     /*
@@ -65,14 +64,25 @@ void write_blocks(FILE * fp, int block_size){
 
     //printf("Number of caracter read: %d\n", read);
     Record rec = convertString(line);
-    if(i < records_per_block){
+
+    /*
+    I think what was happening since we were using i, we were checking if the number of things written
+    were less than the number of records per block. This doesn't work, as seen in this example:
+    block size is 1048576
+    records_per_block is 131072
+    Before, we said as long as i < records_per_block
+    But at i = 16384, since we advance j by size of Record which is 8, j is already 131072
+    So in the next iteration of i, we will seg fault as we're going over the buffer limit
+
+    So I fixed this by removing i, and only using j
+    */
+    if(j < records_per_block){
       /* When the block size is > 1024 the line below segfaults. 
       All the parameters are valid, so it seems as if not 
       enough space is allocated in the array. I can not 
       figure out what the issue is...*/
       buffer[j] = rec;
       j+=sizeof(Record);
-      i++;
     }
     else{
       count ++;
@@ -80,11 +90,9 @@ void write_blocks(FILE * fp, int block_size){
       fwrite(buffer, sizeof(Record), records_per_block, fp_write);
       /* Force  data to disk */
       fflush (fp_write);
-      i = 0;
       j = 0;
       buffer[j] = rec;
       j+=sizeof(Record);
-      i++;
     }
   }
   if (line)
@@ -97,4 +105,3 @@ void write_blocks(FILE * fp, int block_size){
   */
   //free(buffer); 
 }
-
