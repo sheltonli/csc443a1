@@ -59,22 +59,11 @@ void write_blocks(FILE * fp, int block_size){
   empty_rec.uid2 = 0; 
   
   int i = 0;
+  int j;
   while ((read = getline(&line, &len, fp)) != -1) {
-    /*
-    Try printing lines for block size = 1032. The last line 
-    printed before segfault is "Q". Extreemly odd. Maybe you
-    can figure out what's going on..
-    */
-    printf("line: %s\n", line);
-
+    //printf("line: %s\n", line);
     //printf("Number of caracter read: %d\n", read);
     Record rec = convertString(line);
-
-    /*
-    so basically skipping by 8 screws everything up, thats why we had garbage values in the buffer
-    dont need to increment by 8
-    i removed j cuz its not needed
-    */
 
     if(i < records_per_block){
       buffer[i] = rec;
@@ -82,31 +71,26 @@ void write_blocks(FILE * fp, int block_size){
     }
     else{
       count ++;
-      printf("COUNT: %d\n",count);
       fwrite(buffer, sizeof(Record), records_per_block, fp_write);
       /* Force  data to disk */
       fflush (fp_write);
 
       /* Clear the buffer */
-      for (int j = 0; j < records_per_block; j ++){
+      for (j = 0; j < records_per_block; j ++){
         buffer[j] = empty_rec;
       }
-
       i = 0;
       buffer[i] = rec;
       i++;
     }
   }
-
-  /* Do one final write for values still in the buffer 
-  This will write records with 0 values, so while reading check
-  for 0 value just like in max_ave_seq_ram */
-  fwrite(buffer, sizeof(Record), records_per_block, fp_write);
+  Record * new_buffer = realloc(buffer, j*sizeof(Record));
+  
+  fwrite(new_buffer, sizeof(Record), j, fp_write);
   /* Force  data to disk */
   fflush (fp_write);
 
   if (line)
     free(line);
   fclose(fp_write);
-  free(buffer); 
 }
