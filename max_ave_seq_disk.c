@@ -48,25 +48,32 @@ Max_average max_ave_seq_disk(FILE * fp_read, int block_size){
   int current_id= -1;
   int last_id = -1;
   int total_ids = 0;
+  int count = 0;
 
   printf("Result: %d\n", result);
   int i = 0;
   while(result == records_per_block){
     /* Go through each block */
-    for(int i = 0; i < block_size; i ++){
+    for(int i = 0; i < records_per_block; i ++){
       /* First loop */
       if (current_id == -1){
         current_id = buffer->uid1;
         last_id = current_id;
       }
       current_id = (buffer + i)->uid1;
+      // if (current_id == 0){
+      //   break;
+      // }
+      count ++;
+      //printf("current_id: %d\n", current_id);
+
       //printf("current_id: %d\n", current_id);
       if (current_id == last_id){
         current_conns ++;
       }
       else{
-        printf("Switch of ids\n");
-        printf("id: %d has %d connections\n", last_id, current_conns);
+        //printf("Switch of ids\n");
+        //printf("id: %d has %d connections\n", last_id, current_conns);
         total_ids ++;
         last_id = current_id;
         if (current_conns > max_conns){
@@ -78,6 +85,7 @@ Max_average max_ave_seq_disk(FILE * fp_read, int block_size){
     total_conns ++;
     result = fread (buffer, sizeof(Record), records_per_block, fp_read);
   }
+  printf("%d\n", count);
   ma.avg = total_conns/total_ids;
   ma.max = max_conns;
   printf("Average number of connections: %d \t; Maximum number of connections: %d \n", ma.avg, ma.max);
