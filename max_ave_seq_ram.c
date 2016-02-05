@@ -39,6 +39,8 @@ int main(int argc, char* argv[]){
 void max_ave_seq_ram(FILE * fp_read){
   fseek(fp_read, 0, SEEK_END);
   long fsize = ftell(fp_read);
+  printf("fszize: %d\n", fsize);
+  exit(1);
   fseek(fp_read, 0, SEEK_SET);
 
   Record * buffer = (Record *) calloc (fsize, sizeof(Record));
@@ -53,12 +55,15 @@ void max_ave_seq_ram(FILE * fp_read){
 
   int result = fread (buffer, sizeof(Record), fsize, fp_read);
 
+
   clock_t begin, end;
   double time_spent;
 
   begin = clock();
-  /* Go through each block */
+
+  /* Go through the file */
   for(int i = 0; i < fsize; i++){
+    printf("fsize: %d\n", fsize);
     /* First loop */
     if (current_id == -1){
       current_id = buffer[0].uid1;

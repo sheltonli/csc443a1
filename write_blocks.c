@@ -23,6 +23,7 @@ int main(int argc, char* argv[]){
   int block_size = atoi(argv[2]);
 
   if(block_size % sizeof(Record)){
+    printf("Block size is not divisible by sizeof(Record)\n");
     return 1;
   }
   if(!(fp = fopen(argv[1], "r"))){
@@ -59,11 +60,6 @@ void write_blocks(FILE * fp, int block_size){
   if (!(fp_write = fopen ("records.dat", "wb" )))
     exit(EXIT_FAILURE);
 
-  /* empty record for clearing buffer */
-  Record empty_rec;
-  empty_rec.uid1 = 0;
-  empty_rec.uid2 = 0; 
-
   clock_t begin, end;
   double time_spent;
   long total_records = 0;
@@ -82,17 +78,18 @@ void write_blocks(FILE * fp, int block_size){
       i++;
     }
     else{
+      /* Block id full. Force to disk. */
       count ++;
       //printf("COUNT: %d\n",count);
-
       fwrite(buffer, sizeof(Record), records_per_block, fp_write);
       /* Force  data to disk */
       fflush (fp_write);
 
-      /* Clear the buffer */
-      for (j = 0; j < records_per_block; j ++){
-        buffer[j] = empty_rec;
-      }
+      // /* Clear the buffer */
+      // for (j = 0; j < records_per_block; j ++){
+      //   buffer[j] = empty_rec;
+      // }
+
       i = 0;
       buffer[i] = rec;
       i++;
