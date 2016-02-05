@@ -43,7 +43,10 @@ Record convertString(char * line){
   rec.uid2 = atoi(strtok(NULL, ",")); 
   return rec;
 }
+
+
 int count = 0;
+
 void write_blocks(FILE * fp, int block_size){
   char * line = NULL;
   size_t len = 0;
@@ -80,6 +83,8 @@ void write_blocks(FILE * fp, int block_size){
     }
     else{
       count ++;
+      //printf("COUNT: %d\n",count);
+
       fwrite(buffer, sizeof(Record), records_per_block, fp_write);
       /* Force  data to disk */
       fflush (fp_write);
