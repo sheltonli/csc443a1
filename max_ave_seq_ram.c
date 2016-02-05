@@ -52,11 +52,9 @@ void max_ave_seq_ram(FILE * fp_read){
   float total_ids = 0.0;
 
   int result = fread (buffer, sizeof(Record), fsize, fp_read);
-  int count = 0;
 
   clock_t begin, end;
   double time_spent;
-  long total_records = 0;
 
   begin = clock();
   /* Go through each block */
@@ -65,14 +63,13 @@ void max_ave_seq_ram(FILE * fp_read){
     if (current_id == -1){
       current_id = buffer[0].uid1;
       last_id = current_id;
+      total_ids ++;
     }
 
     current_id = buffer[i].uid1;
     if (current_id == 0){
       break;
     }
-
-    count++;
 
     /* Remove later */
     //printf("current_id: %d\n", current_id);
@@ -90,18 +87,17 @@ void max_ave_seq_ram(FILE * fp_read){
       }
     }
     total_conns ++;
-    total_records ++;
   }
   end = clock();
 
   /* Remove later */
-  printf("%d\n", count);
+  printf("%f\n", total_conns);
 
   ma.avg = total_conns/total_ids;
   ma.max = max_conns;
   printf("Average number of connections: %.3f \t; Maximum number of connections: %d \n", ma.avg, ma.max);
 
   time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-  printf ("Data rate: %.3f MBPS\n", ((total_records*sizeof(Record))/time_spent)/MB);
+  printf ("Data rate: %.3f MBPS\n", ((total_conns*sizeof(Record))/time_spent)/MB);
 
 }

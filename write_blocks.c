@@ -1,11 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 
 typedef struct record {
   int uid1;
   int uid2;
 } Record;
+
+const int MB = 1024 * 1024;
 
 Record convertString(char * line);
 void write_blocks(FILE * fp, int block_size);
@@ -57,9 +60,15 @@ void write_blocks(FILE * fp, int block_size){
   Record empty_rec;
   empty_rec.uid1 = 0;
   empty_rec.uid2 = 0; 
+
+  clock_t begin, end;
+  double time_spent;
+  long total_records = 0;
   
   int i = 0;
   int j;
+
+  begin = clock();
   while ((read = getline(&line, &len, fp)) != -1) {
     //printf("line: %s\n", line);
     //printf("Number of caracter read: %d\n", read);
@@ -83,14 +92,19 @@ void write_blocks(FILE * fp, int block_size){
       buffer[i] = rec;
       i++;
     }
+    total_records ++;
   }
   Record * new_buffer = realloc(buffer, j*sizeof(Record));
   
   fwrite(new_buffer, sizeof(Record), j, fp_write);
   /* Force  data to disk */
   fflush (fp_write);
+  end = clock();
 
   if (line)
     free(line);
   fclose(fp_write);
+
+  time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+  printf ("Data rate: %.3f MBPS\n", ((total_records*sizeof(Record))/time_spent)/MB);
 }
