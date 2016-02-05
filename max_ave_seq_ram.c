@@ -39,8 +39,6 @@ int main(int argc, char* argv[]){
 void max_ave_seq_ram(FILE * fp_read){
   fseek(fp_read, 0, SEEK_END);
   long fsize = ftell(fp_read);
-  printf("fszize: %d\n", fsize);
-  exit(1);
   fseek(fp_read, 0, SEEK_SET);
 
   Record * buffer = (Record *) calloc (fsize, sizeof(Record));
@@ -63,21 +61,17 @@ void max_ave_seq_ram(FILE * fp_read){
 
   /* Go through the file */
   for(int i = 0; i < fsize; i++){
-    printf("fsize: %d\n", fsize);
+    current_id = buffer[i].uid1;
     /* First loop */
-    if (current_id == -1){
-      current_id = buffer[0].uid1;
+    if (last_id == -1){
       last_id = current_id;
       total_ids ++;
     }
 
-    current_id = buffer[i].uid1;
+    /* Prevents reading of garbage data */
     if (current_id == 0){
       break;
     }
-
-    /* Remove later */
-    //printf("current_id: %d\n", current_id);
 
     if (current_id == last_id){
       current_conns ++;
@@ -85,18 +79,14 @@ void max_ave_seq_ram(FILE * fp_read){
     else {
       total_ids ++;
       last_id = current_id;
-//       printf("Switch of ids. last_id: %d has %d connections. \t current_id: %d \n", last_id, current_conns, current_id);
       if (current_conns > max_conns){
         max_conns = current_conns;
-        current_conns = 1;
       }
+      current_conns = 1;
     }
     total_conns ++;
   }
   end = clock();
-
-  /* Remove later */
-  printf("%f\n", total_conns);
 
   ma.avg = total_conns/total_ids;
   ma.max = max_conns;

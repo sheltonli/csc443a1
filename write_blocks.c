@@ -36,7 +36,6 @@ int main(int argc, char* argv[]){
 }
 
 Record convertString(char * line){
-  //printf("line: %s", line);
   char * pch;
   pch = strtok (line," ,");
   Record rec;
@@ -44,9 +43,6 @@ Record convertString(char * line){
   rec.uid2 = atoi(strtok(NULL, ",")); 
   return rec;
 }
-
-
-int count = 0;
 
 void write_blocks(FILE * fp, int block_size){
   char * line = NULL;
@@ -69,33 +65,29 @@ void write_blocks(FILE * fp, int block_size){
 
   begin = clock();
   while ((read = getline(&line, &len, fp)) != -1) {
-    //printf("line: %s\n", line);
-    //printf("Number of caracter read: %d\n", read);
     Record rec = convertString(line);
 
     if(i < records_per_block){
       buffer[i] = rec;
       i++;
+      j++;
     }
     else{
       /* Block id full. Force to disk. */
-      count ++;
-      //printf("COUNT: %d\n",count);
       fwrite(buffer, sizeof(Record), records_per_block, fp_write);
       /* Force  data to disk */
       fflush (fp_write);
 
-      // /* Clear the buffer */
-      // for (j = 0; j < records_per_block; j ++){
-      //   buffer[j] = empty_rec;
-      // }
-
       i = 0;
+      j = 0;
       buffer[i] = rec;
-      i++;
+      i ++;
+      j ++;
     }
     total_records ++;
   }
+
+  /* do one last write */
   Record * new_buffer = realloc(buffer, j*sizeof(Record));
   
   fwrite(new_buffer, sizeof(Record), j, fp_write);
