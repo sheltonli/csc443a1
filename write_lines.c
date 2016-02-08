@@ -55,8 +55,9 @@ void write_lines(FILE * fp){
     free(line);
   fclose(fp_write); 
 
-  time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-  printf("Total size: %d\n", total_size); 
+  time_spent = (double)(end - begin);
+  printf("Total size: %d\n", total_size);
+  printf("%d\n", time_spent);
   /* result in MB per second */
   printf ("Data rate: %.3f Bytes per second \n", total_size/(time_spent/CLOCKS_PER_SEC));
 
