@@ -1,7 +1,7 @@
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
-#include <sys/time.h>
+#include <time.h>
 
 typedef struct max_avg{
   float avg;
@@ -25,7 +25,6 @@ int main(int argc, char* argv[]){
     printf("Usage: <input filename> <block size>\n");
     return 1;
   }
-
   int block_size = atoi(argv[2]);
 
   if(block_size % sizeof(Record)){
@@ -113,5 +112,5 @@ void max_ave_seq_disk(FILE * fp_read, int block_size){
   printf("Average number of connections: %.3f \t; Maximum number of connections: %d \n", ma.avg, ma.max);
   
   time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-  printf ("Data rate: %.3f MBPS\n", ((total_conns*sizeof(Record))/time_spent)/MB);
+  printf ("Data rate: %.3f Bytes per second\n", ((total_conns*sizeof(Record))/time_spent));
 }

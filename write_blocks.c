@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
-
+#include <time.h>
 typedef struct record {
   int uid1;
   int uid2;
@@ -53,7 +53,7 @@ void write_blocks(FILE * fp, int block_size){
   int records_per_block = block_size / sizeof(Record);
   /* Allocate buffer for 1 block */
   Record * buffer = (Record *) calloc (records_per_block, sizeof(Record));
-  if (!(fp_write = fopen ("records.dat", "wb" )))
+  if (!(fp_write = fopen ("edges.dat", "wb" )))
     exit(EXIT_FAILURE);
 
   clock_t begin, end;
@@ -73,9 +73,8 @@ void write_blocks(FILE * fp, int block_size){
       j++;
     }
     else{
-      /* Block id full. Force to disk. */
+      /* Block is full. Force to disk. */
       fwrite(buffer, sizeof(Record), records_per_block, fp_write);
-      /* Force  data to disk */
       fflush (fp_write);
 
       i = 0;
@@ -99,6 +98,6 @@ void write_blocks(FILE * fp, int block_size){
     free(line);
   fclose(fp_write);
 
-  time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-  printf ("Data rate: %.3f MBPS\n", ((total_records*sizeof(Record))/time_spent)/MB);
+  time_spent = (double)(end - begin);
+  printf ("Data rate: %.3f Bytes per second \n", total_records*sizeof(Record)/(time_spent/CLOCKS_PER_SEC));
 }

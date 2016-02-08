@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include <time.h>
 
 typedef struct record {
   int uid1;
@@ -55,7 +56,8 @@ void write_lines(FILE * fp){
   fclose(fp_write); 
 
   time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+  printf("Total size: %d\n", total_size); 
   /* result in MB per second */
-  printf ("Data rate: %.3f MBPS\n", (total_size/time_spent)/MB);
+  printf ("Data rate: %.3f Bytes per second \n", total_size/(time_spent/CLOCKS_PER_SEC));
 
 }

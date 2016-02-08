@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>
+#include <time.h>
 
 typedef struct max_avg{
   float avg;
@@ -60,7 +60,8 @@ void max_ave_seq_ram(FILE * fp_read){
   begin = clock();
 
   /* Go through the file */
-  for(int i = 0; i < fsize; i++){
+  int i;
+  for(i = 0; i < fsize; i++){
     current_id = buffer[i].uid1;
     /* First loop */
     if (last_id == -1){
@@ -93,6 +94,6 @@ void max_ave_seq_ram(FILE * fp_read){
   printf("Average number of connections: %.3f \t; Maximum number of connections: %d \n", ma.avg, ma.max);
 
   time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-  printf ("Data rate: %.3f MBPS\n", ((total_conns*sizeof(Record))/time_spent)/MB);
+  printf ("Data rate: %.3f Bytes  per second\n", ((total_conns*sizeof(Record))/time_spent));
 
 }
