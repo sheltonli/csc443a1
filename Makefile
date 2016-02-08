@@ -15,3 +15,6 @@ max_ave_seq_ram: max_ave_seq_ram.c
 	$(CC) -o $@ $< 	
 	
 	
+clean: 
+	rm write_blocks write_lines max_ave_seq_disk max_ave_seq_ram edges.dat
+	
